@@ -1,0 +1,8 @@
+#!/bin/sh
+
+for i in *_processes
+do
+	TESTCASE=`basename $i _processes`
+	echo "Running $TESTCASE"
+	./runtest.py $TESTCASE > $TESTCASE.csv
+done

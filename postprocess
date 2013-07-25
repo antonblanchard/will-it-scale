@@ -1,0 +1,94 @@
+#!/bin/sh
+
+cat << EOF
+
+<html>
+<head>
+<title>Will it scale?</title>
+<script type="text/javascript" src="dygraph-combined.js"></script>
+<style type="text/css" media="screen">
+#header {
+	position: fixed;
+	width: auto;
+	top: 0;
+	right: 0;
+	left: auto;
+	bottom: auto;
+	background: #eee;
+	border: 1px solid #ccc;
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+<p><b>Display:</b>
+<input type=checkbox id=0 onClick="change_visibility(this)" checked>
+<label for="0"> Processes</label>
+<input type=checkbox id=1 onClick="change_visibility(this)" checked>
+<label for="1"> Processes idle</label>
+<input type=checkbox id=2 onClick="change_visibility(this)" checked>
+<label for="2"> Threads</label>
+<input type=checkbox id=3 onClick="change_visibility(this)" checked>
+<label for="3"> Threads idle</label>
+<input type=checkbox id=4 onClick="change_visibility(this)" checked>
+<label for="4"> Linear scaling</label>
+</p>
+</div>
+
+<script type="text/javascript">
+var maxgraph = 0;
+var graphs = [];
+
+function change_visibility(el) {
+	for (i = 0; i < maxgraph; i++) {
+		graphs[i].setVisibility(el.id, el.checked);
+	}
+}
+
+</script>
+
+EOF
+
+for i in `ls *.csv`
+do
+	BASENAME=`basename $i .csv`
+	TITLE=`cat $BASENAME.title`
+	echo "<h2>$TITLE</h2>"
+
+cat <<EOF
+<table><tr>
+<td valign="top"><div id="$BASENAME"
+	style="width:500px; height:300px;"></div></td>
+<td valign="top">&nbsp; &nbsp;</td>
+<td valign="top"><div id="${BASENAME}_labels" style="width:300px;"></div></td>
+</tr></table>
+<p>
+
+<script type="text/javascript">
+graphs[maxgraph++] = new Dygraph(
+document.getElementById("$BASENAME"),
+"$i",
+{
+	labelsDiv: document.getElementById("${BASENAME}_labels"),
+	labelsSeparateLines: true,
+	labelsKMB: true,
+	colors: ['green', 'green', 'red', 'red', 'blue'],
+	'processes_idle': {
+		axis: {
+			valueRange: [0, 100.1]
+		}
+	},
+	'threads_idle': {
+		axis: 'processes_idle'
+	}
+}
+);
+</script>
+EOF
+done
+
+cat << EOF
+</body>
+</html>
+EOF
