@@ -13,7 +13,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/mman.h>
-#include <topology.h>
+#include <hwloc.h>
+#include <hwloc/glibc-sched.h>
 #include <sys/types.h>
 #include <signal.h>
 
@@ -191,14 +192,10 @@ int main(int argc, char *argv[])
 	int opt_tasks = 1;
 	int opt_iterations = 0;
 	int iterations = 0;
-	int i;
+	int i, n;
 	char *m;
 	static unsigned long long *results[MAX_TASKS];
-	topo_procent_t system;
-	topo_procent_t thread = (topo_procent_t)0;
-	topo_context_t ctx;
-	size_t cpuset_size;
-	cpu_set_t *mask;
+	hwloc_topology_t topology;
 	unsigned long long prev[MAX_TASKS] = {0, };
 	unsigned long long total = 0;
 
@@ -235,24 +232,21 @@ int main(int argc, char *argv[])
 
 	testcase_prepare();
 
-	topology_init_context(&ctx, &system);
-	cpuset_size = topology_sizeof_cpumask(ctx);
-	mask = malloc(cpuset_size);
+	hwloc_topology_init(&topology);
+	hwloc_topology_load(topology);
 
+	n = hwloc_get_nbobjs_by_type(topology, HWLOC_OBJ_CORE);
 	for (i = 0; i < opt_tasks; i++) {
-		thread = topology_traverse(system, thread, TOPOLOGY_CORE);
-		/* Wrap back to start */
-		if (!thread)
-			thread = topology_traverse(system, thread,
-						   TOPOLOGY_CORE);
+		hwloc_obj_t obj;
+		cpu_set_t mask;
 
-		topology_procent_cpumask(thread, mask);
-		new_task_affinity(testcase, results[i],
-				  cpuset_size, mask);
+		obj = hwloc_get_obj_by_type(topology, HWLOC_OBJ_CORE, i % n);
+		hwloc_cpuset_to_glibc_sched_affinity(topology,
+				obj->cpuset, &mask, sizeof(mask));
+		new_task_affinity(testcase, results[i], sizeof(mask), &mask);
 	}
 
-	free(mask);
-	topology_free_context(ctx);
+	hwloc_topology_destroy(topology);
 
 	printf("testcase:%s\n", testcase_description);
 

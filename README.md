@@ -7,10 +7,10 @@ Will It Scale takes a testcase and runs it from 1 through to n parallel copies
 to see if the testcase will scale. It builds both a process and threads based
 test in order to see any differences between the two.
 
-Currently we rely on libtopology for a platform independent way of laying
-out tasks on cores. It can be found at http://libtopology.ozlabs.org/.
+We rely on hwloc for a platform independent way of laying out tasks on cores.
+It can be found at www.open-mpi.org/projects/hwloc/.
 
-Care is taken to try and reduce run to run variability. By using libtopology
+Care is taken to try and reduce run to run variability. By using hwloc
 we ensure each task is on its own core and won't get bounced around by the
 scheduler. The wrapper script (runtest.py) turns off address space
 randomisation which can cause huge differences in pagetable related benchmarks
