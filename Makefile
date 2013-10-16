@@ -1,5 +1,5 @@
 CFLAGS=-Wall -O2 -g
-LDFLAGS=-ltopology
+LDFLAGS=-lhwloc
 
 processes := $(patsubst tests/%.c,%_processes,$(wildcard tests/*.c))
 threads := $(patsubst tests/%.c,%_threads,$(wildcard tests/*.c))
