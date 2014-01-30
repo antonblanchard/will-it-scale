@@ -87,7 +87,14 @@ if arch == 'ppc64':
 print 'tasks,processes,processes_idle,threads,threads_idle,linear'
 print '0,0,100,0,100,0'
 
-for i in range(1, nr_cores+1):
+step = 1
+# if step=5, this is: [5, 10, 15, ... nr_cores]
+data_points = range(step, nr_cores+step, step)
+# this makes it [ 1, 5, 10, ... ]
+if step > 1:
+	data_points.insert(0, 1)
+
+for i in data_points:
 	c = './%s_processes -t %d -s %d' % (cmd, i, duration)
 	before = linux_stat()
 	pipe = subprocess.Popen(setarch + ' ' + c, shell=True, stdout=subprocess.PIPE).stdout

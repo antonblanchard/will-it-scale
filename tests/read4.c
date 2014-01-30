@@ -28,8 +28,7 @@ void testcase(unsigned long long *iterations)
 	int fd = open(tmpfile, O_DIRECT|O_RDONLY);
 	char *p;
 
-	p = malloc(BUFLEN + getpagesize());
-	p = (char *)(((unsigned long)p + getpagesize()-1) & ~(getpagesize()-1));
+	p = aligned_alloc(getpagesize(), BUFLEN);
 
 	while (1) {
 		int ret = read(fd, p, BUFLEN);
@@ -39,6 +38,7 @@ void testcase(unsigned long long *iterations)
 
 		(*iterations)++;
 	}
+	free(p);
 }
 
 void testcase_cleanup(void)

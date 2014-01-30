@@ -12,14 +12,15 @@ char *testcase_description = "Separate file O_DIRECT read";
 
 void testcase(unsigned long long *iterations)
 {
-	char buf[FILESIZE];
+	char *buf;
 	char tmpfile[] = "/tmp/willitscale.XXXXXX";
 	int fd = mkostemp(tmpfile, O_DIRECT);
 	char *p;
 
-	memset(buf, 0, sizeof(buf));
+	buf = aligned_alloc(getpagesize(), FILESIZE);
+	memset(buf, 0, FILESIZE);
 	assert(fd >= 0);
-	assert(write(fd, buf, sizeof(buf)) == sizeof(buf));
+	assert(write(fd, buf, FILESIZE) == FILESIZE);
 	unlink(tmpfile);
 
 	p = malloc(BUFLEN + getpagesize());
@@ -33,4 +34,5 @@ void testcase(unsigned long long *iterations)
 
 		(*iterations)++;
 	}
+	free(buf);
 }
