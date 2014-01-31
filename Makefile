@@ -16,7 +16,7 @@ $(processes): %_processes: tests/%.o main.c
 	$(CC) $(CFLAGS) main.c $< $($@_FLAGS) $(LDFLAGS) -o $@
 
 $(threads): %_threads: tests/%.o main.c
-	$(CC) -DTHREADS $(CFLAGS) main.c $< -lpthread $(LDFLAGS) -o $@
+	$(CC) -DTHREADS $(CFLAGS) main.c $< -pthread $(LDFLAGS) -o $@
 
 clean:
 	rm -f tests/*.o *_processes *_threads
