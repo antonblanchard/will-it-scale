@@ -10,7 +10,7 @@
 
 char *testcase_description = "Separate file O_DIRECT read";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	char *buf;
 	char tmpfile[] = "/tmp/willitscale.XXXXXX";

@@ -23,7 +23,7 @@ void testcase_prepare(unsigned long nr_tasks)
 	assert(setrlimit(RLIMIT_NOFILE, &rlim) == 0);
 }
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	int i;
 	char tmpfile[PATH_MAX];

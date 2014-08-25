@@ -6,7 +6,7 @@
 
 char *testcase_description = "poll of 1 fd";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	char tmpfile[] = "/tmp/willitscale.XXXXXX";
 	int fd = mkstemp(tmpfile);

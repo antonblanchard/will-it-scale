@@ -23,7 +23,7 @@ void testcase_prepare(unsigned long nr_tasks)
 	close(fd);
 }
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	int fd = open(tmpfile, O_DIRECT|O_RDONLY);
 	char *p;

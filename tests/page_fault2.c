@@ -8,7 +8,7 @@
 
 char *testcase_description = "Separate file private mapping page fault";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	char tmpfile[] = "/tmp/willitscale.XXXXXX";
 	int fd = mkstemp(tmpfile);

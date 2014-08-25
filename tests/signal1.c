@@ -11,7 +11,7 @@ void handler(int junk)
 
 char *testcase_description = "signal delivery";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	struct sigaction act;
 

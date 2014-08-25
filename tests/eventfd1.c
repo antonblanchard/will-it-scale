@@ -6,7 +6,7 @@
 
 char *testcase_description = "eventfd read/write of 8 bytes";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	unsigned long long rbuf;
 	unsigned long long wbuf;

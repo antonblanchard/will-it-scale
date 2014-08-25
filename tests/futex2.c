@@ -7,7 +7,7 @@
 
 char *testcase_description = "futex(FUTEX_WAIT)";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	while (1) {
 		unsigned int addr = 0;

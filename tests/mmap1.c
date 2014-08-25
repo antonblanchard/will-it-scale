@@ -8,7 +8,7 @@
 
 char *testcase_description = "Anonymous memory mmap/munmap of 128MB";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	while (1) {
 		char *c = mmap(NULL, MEMSIZE, PROT_READ|PROT_WRITE,

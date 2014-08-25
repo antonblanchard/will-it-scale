@@ -17,7 +17,7 @@ void testcase_prepare(unsigned long nr_tasks)
 	close(fd);
 }
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	while (1) {
 		int fd = open(tmpfile, O_RDWR);

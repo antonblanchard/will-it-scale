@@ -2,7 +2,7 @@
 
 char *testcase_description = "POSIX semaphores";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	sem_t sem;
 

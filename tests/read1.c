@@ -9,7 +9,7 @@
 
 char *testcase_description = "Separate file read";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	char buf[FILESIZE];
 	char tmpfile[] = "/tmp/willitscale.XXXXXX";

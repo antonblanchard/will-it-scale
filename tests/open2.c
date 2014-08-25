@@ -9,7 +9,7 @@
 
 char *testcase_description = "Separate file open/close in different directories";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	char tmpdir[] = "/tmp/willitscale.XXXXXX";
 	char tmpfile[PATH_MAX];

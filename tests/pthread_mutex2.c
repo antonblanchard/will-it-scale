@@ -3,7 +3,7 @@
 
 char *testcase_description = "Uncontended pthread mutex";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 

@@ -7,7 +7,7 @@
 
 char *testcase_description = "Separate file lseek";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	char buf[BUFLEN];
 	char tmpfile[] = "/tmp/willitscale.XXXXXX";

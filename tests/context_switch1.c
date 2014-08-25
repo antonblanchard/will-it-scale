@@ -37,7 +37,7 @@ static void *child(void *arg)
 	return NULL;
 }
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	struct args a;
 	char c;

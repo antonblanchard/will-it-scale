@@ -7,7 +7,7 @@
 
 char *testcase_description = "malloc/free of 128MB";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	while (1) {
 		void *addr = malloc(SIZE);

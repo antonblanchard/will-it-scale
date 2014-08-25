@@ -3,7 +3,7 @@
 
 char *testcase_description = "getppid";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	while (1) {
 		getppid();

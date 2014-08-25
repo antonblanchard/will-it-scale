@@ -9,7 +9,7 @@
 
 char *testcase_description = "pipe read/write";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	int fd[2];
 

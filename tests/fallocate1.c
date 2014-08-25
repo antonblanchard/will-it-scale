@@ -12,7 +12,7 @@
 
 char *testcase_description = "Separate file fallocate ";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	char tmpfile[] = "/tmpfs/willitscale.XXXXXX";
 	int fd = mkstemp(tmpfile);

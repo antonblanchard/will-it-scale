@@ -21,7 +21,7 @@ void testcase_prepare(unsigned long nr_tasks)
 	close(fd);
 }
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	char buf[BUFLEN];
 	int fd = open(tmpfile, O_RDWR);

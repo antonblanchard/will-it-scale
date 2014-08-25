@@ -8,7 +8,7 @@
 
 char *testcase_description = "Anonymous memory page fault";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	unsigned long pgsize = getpagesize();
 

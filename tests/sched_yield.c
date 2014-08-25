@@ -3,7 +3,7 @@
 
 char *testcase_description = "sched_yield";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	while (1) {
 		assert(sched_yield() == 0);

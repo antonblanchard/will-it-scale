@@ -3,7 +3,7 @@
 
 char *testcase_description = "brk increase/decrease of one page";
 
-void testcase(unsigned long long *iterations)
+void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	void *addr = sbrk(0);
 	unsigned long page_size = getpagesize();
