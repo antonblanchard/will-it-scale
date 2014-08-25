@@ -9,7 +9,7 @@
 
 static char tmpfile[] = "/tmp/willitscale.XXXXXX";
 
-char *testcase_description = "Same file pwrite";
+char *testcase_description = "Same file pwrite to same offset";
 
 void testcase_prepare(unsigned long nr_tasks)
 {
