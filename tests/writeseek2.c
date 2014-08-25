@@ -8,7 +8,7 @@
 
 static char tmpfile[] = "/tmp/willitscale.XXXXXX";
 
-char *testcase_description = "Same file seek+read";
+char *testcase_description = "Same file seek+read to same offset";
 
 void testcase_prepare(unsigned long nr_tasks)
 {
