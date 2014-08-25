@@ -23,7 +23,7 @@
 #define WARMUP_ITERATIONS 5
 
 extern char *testcase_description;
-extern void __attribute__((weak)) testcase_prepare(void) { }
+extern void __attribute__((weak)) testcase_prepare(unsigned long nr_tasks) { }
 extern void __attribute__((weak)) testcase_cleanup(void) { }
 extern void *testcase(void *iterations);
 
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
 	for (i = 0; i < opt_tasks; i++)
 		results[i] = (unsigned long long *)&m[i * CACHELINE_SIZE];
 
-	testcase_prepare();
+	testcase_prepare(opt_tasks);
 
 	hwloc_topology_init(&topology);
 	hwloc_topology_load(topology);

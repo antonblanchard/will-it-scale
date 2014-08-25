@@ -12,7 +12,7 @@
 
 char *testcase_description = "poll of 128 fds";
 
-void testcase_prepare(void)
+void testcase_prepare(unsigned long nr_tasks)
 {
 	struct rlimit rlim;
 	int nr_procs = sysconf(_SC_NPROCESSORS_CONF);

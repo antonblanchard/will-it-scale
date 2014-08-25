@@ -12,7 +12,7 @@ static char tmpfile[] = "/tmp/willitscale.XXXXXX";
 
 char *testcase_description = "Same file O_DIRECT read";
 
-void testcase_prepare(void)
+void testcase_prepare(unsigned long nr_tasks)
 {
 	int fd = mkstemp(tmpfile);
 	char buf[FILESIZE];

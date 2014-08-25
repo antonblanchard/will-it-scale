@@ -10,7 +10,7 @@ static char tmpfile[] = "/tmp/willitscale.XXXXXX";
 
 char *testcase_description = "Same file lseek";
 
-void testcase_prepare(void)
+void testcase_prepare(unsigned long nr_tasks)
 {
 	char buf[BUFLEN];
 	int fd = mkstemp(tmpfile);

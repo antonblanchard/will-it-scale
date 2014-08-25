@@ -48,7 +48,7 @@ A (not very useful) example:
 If you need to setup something globally such as a single file for all
 parallel testcases to operate on, there are two functions:
 
-	void testcase_prepare(void)
+	void testcase_prepare(unsigned long nr_tasks)
 	void testcase_cleanup(void)
 
 Finally if you need a new task such as when you want to write a context

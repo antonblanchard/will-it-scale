@@ -11,7 +11,7 @@ static char tmpfile[] = "/tmp/willitscale.XXXXXX";
 
 char *testcase_description = "Same file read";
 
-void testcase_prepare(void)
+void testcase_prepare(unsigned long nr_tasks)
 {
 	char buf[FILESIZE];
 	int fd = mkstemp(tmpfile);
