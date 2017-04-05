@@ -17,6 +17,7 @@
 #include <hwloc/glibc-sched.h>
 #include <sys/types.h>
 #include <signal.h>
+#include <poll.h>
 
 #define MAX_TASKS 1024
 #define CACHELINE_SIZE 128
@@ -74,11 +75,15 @@ struct args
 	void *(*func)(unsigned long long *iterations, unsigned long nr);
 	unsigned long long *arg1;
 	unsigned long arg2;
+	int poll_fd;
 };
 
 static void *testcase_trampoline(void *p)
 {
 	struct args *args = p;
+	struct pollfd pfd = { args->poll_fd, POLLIN, 0 };
+
+	poll(&pfd, 1, -1);
 
 	return args->func(args->arg1, args->arg2);
 }
@@ -212,6 +217,7 @@ int main(int argc, char *argv[])
 	hwloc_topology_t topology;
 	unsigned long long prev[MAX_TASKS] = {0, };
 	unsigned long long total = 0;
+	int fd[2];
 
 	while (1) {
 		signed char c = getopt(argc, argv, "t:s:h");
@@ -244,6 +250,11 @@ int main(int argc, char *argv[])
 	for (i = 0; i < opt_tasks; i++)
 		results[i] = (unsigned long long *)&m[i * CACHELINE_SIZE];
 
+	if (pipe(fd) == -1) {
+		perror("pipe");
+		exit(1);
+	}
+
 	testcase_prepare(opt_tasks);
 
 	hwloc_topology_init(&topology);
@@ -263,12 +274,14 @@ int main(int argc, char *argv[])
 		args->func = testcase;
 		args->arg1 = results[i];
 		args->arg2 = i;
+		args->poll_fd = fd[0];
 
 		obj = hwloc_get_obj_by_type(topology, HWLOC_OBJ_CORE, i % n);
 		hwloc_cpuset_to_glibc_sched_affinity(topology,
 				obj->cpuset, &mask, sizeof(mask));
 		new_task_affinity(args, sizeof(mask), &mask);
 	}
+	write(fd[1], &i, 1);
 
 	hwloc_topology_destroy(topology);
 
