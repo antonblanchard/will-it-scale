@@ -10,6 +10,7 @@
 #include <sched.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/mman.h>
@@ -66,7 +67,10 @@ static char *initialise_shared_area(unsigned long size)
 
 static void usage(char *command)
 {
-	printf("Usage: %s <-t tasks> <-s iterations>\n\n", command);
+	printf("Usage: %s [options]\n\n", command);
+	printf("\t-s iterations\tNumber of iterations to run\n");
+	printf("\t-t tasks\tNumber of threads or processes to run\n");
+	printf("\t-m\t\tAffinitize tasks on SMT threads (default cores)\n");
 	exit(1);
 }
 
@@ -218,13 +222,18 @@ int main(int argc, char *argv[])
 	unsigned long long prev[MAX_TASKS] = {0, };
 	unsigned long long total = 0;
 	int fd[2];
+	bool smt_affinity = false;
 
 	while (1) {
-		signed char c = getopt(argc, argv, "t:s:h");
+		signed char c = getopt(argc, argv, "mt:s:h");
 		if (c < 0)
 			break;
 
 		switch (c) {
+			case 'm':
+				smt_affinity = true;
+				break;
+
 			case 't':
 				opt_tasks = atoi(optarg);
 				if (opt_tasks > MAX_TASKS) {
@@ -260,7 +269,8 @@ int main(int argc, char *argv[])
 	hwloc_topology_init(&topology);
 	hwloc_topology_load(topology);
 
-	n = hwloc_get_nbobjs_by_type(topology, HWLOC_OBJ_CORE);
+	n = hwloc_get_nbobjs_by_type(topology,
+			smt_affinity ? HWLOC_OBJ_PU : HWLOC_OBJ_CORE);
 	for (i = 0; i < opt_tasks; i++) {
 		hwloc_obj_t obj;
 		cpu_set_t mask;
@@ -276,7 +286,9 @@ int main(int argc, char *argv[])
 		args->arg2 = i;
 		args->poll_fd = fd[0];
 
-		obj = hwloc_get_obj_by_type(topology, HWLOC_OBJ_CORE, i % n);
+		obj = hwloc_get_obj_by_type(topology,
+				smt_affinity ? HWLOC_OBJ_PU : HWLOC_OBJ_CORE,
+				i % n);
 		hwloc_cpuset_to_glibc_sched_affinity(topology,
 				obj->cpuset, &mask, sizeof(mask));
 		new_task_affinity(args, sizeof(mask), &mask);
