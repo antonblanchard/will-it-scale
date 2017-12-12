@@ -25,7 +25,7 @@ void testcase_prepare(unsigned long nr_tasks)
 void testcase(unsigned long long *iterations, unsigned long nr)
 {
 	char buf[BUFLEN];
-	char fd = open(tmpfile, O_RDONLY);
+	int fd = open(tmpfile, O_RDONLY);
 
 	assert(fd >= 0);
 
