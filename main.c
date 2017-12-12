@@ -281,7 +281,11 @@ int main(int argc, char *argv[])
 				obj->cpuset, &mask, sizeof(mask));
 		new_task_affinity(args, sizeof(mask), &mask);
 	}
-	write(fd[1], &i, 1);
+
+	if (write(fd[1], &i, 1) != 1) {
+		perror("write");
+		exit(1);
+	}
 
 	hwloc_topology_destroy(topology);
 
