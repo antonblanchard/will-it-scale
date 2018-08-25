@@ -9,11 +9,11 @@
 #define FILESIZE (1 * 1024 * 1024)
 #define BUFLEN (FILESIZE / 128)
 
-char *testcase_description = "Separate file fallocate ";
+char *testcase_description = "Separate file fallocate against tmpfs";
 
 void testcase(unsigned long long *iterations, unsigned long nr)
 {
-	char tmpfile[] = "/tmpfs/willitscale.XXXXXX";
+	char tmpfile[] = "/dev/shm/willitscale.XXXXXX";
 	int fd = mkstemp(tmpfile);
 	unsigned long place = 0;
 	assert(fd >= 0);
