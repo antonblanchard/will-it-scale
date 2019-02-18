@@ -335,9 +335,11 @@ int main(int argc, char *argv[])
 		if (opt_iterations &&
 		    (iterations > (opt_iterations + WARMUP_ITERATIONS))) {
 			printf("average:%llu\n", total / opt_iterations);
-			testcase_cleanup();
-			kill_tasks();
-			exit(0);
+			break;
 		}
 	}
+
+	kill_tasks();
+	testcase_cleanup();
+	exit(0);
 }
