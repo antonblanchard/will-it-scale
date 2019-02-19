@@ -96,24 +96,24 @@ static void *testcase_trampoline(void *p)
 
 #include <pthread.h>
 
+static pthread_t threads[MAX_TASKS];
+static int nr_threads;
+
 void new_task(void *(func)(void *), void *arg)
 {
-	pthread_t tid;
-
-	pthread_create(&tid, NULL, func, arg);
+	pthread_create(&threads[nr_threads++], NULL, func, arg);
 }
 
 void new_task_affinity(struct args *args,
 		       size_t cpuset_size, cpu_set_t *mask)
 {
 	pthread_attr_t attr;
-	pthread_t tid;
 
 	pthread_attr_init(&attr);
 
 	pthread_attr_setaffinity_np(&attr, cpuset_size, mask);
 
-	pthread_create(&tid, &attr, testcase_trampoline, args);
+	pthread_create(&threads[nr_threads++], &attr, testcase_trampoline, args);
 
 	pthread_attr_destroy(&attr);
 }
@@ -121,6 +121,11 @@ void new_task_affinity(struct args *args,
 /* All threads will die when we exit */
 static void kill_tasks(void)
 {
+	int i;
+
+	for (i = 0; i < nr_threads; i++) {
+		pthread_cancel(threads[i]);
+	}
 }
 
 #else
