@@ -270,6 +270,16 @@ int main(int argc, char *argv[])
 
 	n = hwloc_get_nbobjs_by_type(topology,
 			smt_affinity ? HWLOC_OBJ_PU : HWLOC_OBJ_CORE);
+	if (n == 0) {
+		printf("No Cores/PUs found. Try %s -m flag\n",
+		       smt_affinity ? "removing" : "adding");
+		exit(1);
+	}
+	if (n < 1) {
+		perror("hwloc_get_nbobjs_by_type");
+		exit(1);
+	}
+
 	for (i = 0; i < opt_tasks; i++) {
 		hwloc_obj_t obj;
 		cpu_set_t mask, old_mask;
