@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -10,10 +11,10 @@ void testcase(unsigned long long *iterations, unsigned long nr)
 
 	while (1) {
 		addr += page_size;
-		brk(addr);
+		assert(brk(addr) == 0);
 
 		addr -= page_size;
-		brk(addr);
+		assert(brk(addr) == 0);
 
 		(*iterations) += 2;
 	}
