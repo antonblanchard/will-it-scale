@@ -174,11 +174,7 @@ void new_task(void *(func)(void *), void *arg)
 void new_task_affinity(struct args *args,
 		       size_t cpuset_size, cpu_set_t *mask)
 {
-	cpu_set_t old_mask;
 	int pid;
-
-	sched_getaffinity(0, sizeof(old_mask), &old_mask);
-	sched_setaffinity(0, cpuset_size, mask);
 
 	parent_pid = getpid();
 
@@ -199,8 +195,6 @@ void new_task_affinity(struct args *args,
 
 		testcase_trampoline(args);
 	}
-
-	sched_setaffinity(0, sizeof(old_mask), &old_mask);
 
 	pids[nr_pids++] = pid;
 }
@@ -278,7 +272,7 @@ int main(int argc, char *argv[])
 			smt_affinity ? HWLOC_OBJ_PU : HWLOC_OBJ_CORE);
 	for (i = 0; i < opt_tasks; i++) {
 		hwloc_obj_t obj;
-		cpu_set_t mask;
+		cpu_set_t mask, old_mask;
 		struct args *args;
 
 		args = malloc(sizeof(struct args));
@@ -296,7 +290,13 @@ int main(int argc, char *argv[])
 				i % n);
 		hwloc_cpuset_to_glibc_sched_affinity(topology,
 				obj->cpuset, &mask, sizeof(mask));
+
+		sched_getaffinity(0, sizeof(old_mask), &old_mask);
+		sched_setaffinity(0, sizeof(mask), &mask);
+
 		new_task_affinity(args, sizeof(mask), &mask);
+
+		sched_setaffinity(0, sizeof(old_mask), &old_mask);
 	}
 
 	if (write(fd[1], &i, 1) != 1) {
