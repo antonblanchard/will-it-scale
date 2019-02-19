@@ -66,21 +66,13 @@ Quick start:
 
 Postprocessing and graphing
 ---------------------------
-The graphing scripts use dygraphs, a client side javascript graphing package.
-You need to download it at:
+The graphing scripts use plotly, a client side javascript graphing package.
 
-http://danvk.org/dygraphs/dygraph-combined.js
+To generate html files for generated results:
 
-Note: dygraphs will only work on a web server since it uses XMLHttpRequest.
-You can't just point your web browser to a local file.
+	./postprocess.py
 
-Right now the script is pretty horrible but will probably work:
-
-	./postprocess > index.html
-
-Then copy dygraph-combined.js *.csv index.html to your web directory:
-
-	scp *.csv index.html dygraph-combined.js <destination>
+Then load the generated html file in the browser.
 
 The graphs show number of tasks run on the x axis vs performance (in operations
 per second) on the left y axis. We also plot the amount of idle time against
