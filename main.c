@@ -96,24 +96,24 @@ static void *testcase_trampoline(void *p)
 
 #include <pthread.h>
 
+static pthread_t threads[MAX_TASKS];
+static int nr_threads;
+
 void new_task(void *(func)(void *), void *arg)
 {
-	pthread_t tid;
-
-	pthread_create(&tid, NULL, func, arg);
+	pthread_create(&threads[nr_threads++], NULL, func, arg);
 }
 
 void new_task_affinity(struct args *args,
 		       size_t cpuset_size, cpu_set_t *mask)
 {
 	pthread_attr_t attr;
-	pthread_t tid;
 
 	pthread_attr_init(&attr);
 
 	pthread_attr_setaffinity_np(&attr, cpuset_size, mask);
 
-	pthread_create(&tid, &attr, testcase_trampoline, args);
+	pthread_create(&threads[nr_threads++], &attr, testcase_trampoline, args);
 
 	pthread_attr_destroy(&attr);
 }
@@ -121,6 +121,11 @@ void new_task_affinity(struct args *args,
 /* All threads will die when we exit */
 static void kill_tasks(void)
 {
+	int i;
+
+	for (i = 0; i < nr_threads; i++) {
+		pthread_cancel(threads[i]);
+	}
 }
 
 #else
@@ -169,11 +174,7 @@ void new_task(void *(func)(void *), void *arg)
 void new_task_affinity(struct args *args,
 		       size_t cpuset_size, cpu_set_t *mask)
 {
-	cpu_set_t old_mask;
 	int pid;
-
-	sched_getaffinity(0, sizeof(old_mask), &old_mask);
-	sched_setaffinity(0, cpuset_size, mask);
 
 	parent_pid = getpid();
 
@@ -194,8 +195,6 @@ void new_task_affinity(struct args *args,
 
 		testcase_trampoline(args);
 	}
-
-	sched_setaffinity(0, sizeof(old_mask), &old_mask);
 
 	pids[nr_pids++] = pid;
 }
@@ -271,9 +270,19 @@ int main(int argc, char *argv[])
 
 	n = hwloc_get_nbobjs_by_type(topology,
 			smt_affinity ? HWLOC_OBJ_PU : HWLOC_OBJ_CORE);
+	if (n == 0) {
+		printf("No Cores/PUs found. Try %s -m flag\n",
+		       smt_affinity ? "removing" : "adding");
+		exit(1);
+	}
+	if (n < 1) {
+		perror("hwloc_get_nbobjs_by_type");
+		exit(1);
+	}
+
 	for (i = 0; i < opt_tasks; i++) {
 		hwloc_obj_t obj;
-		cpu_set_t mask;
+		cpu_set_t mask, old_mask;
 		struct args *args;
 
 		args = malloc(sizeof(struct args));
@@ -291,7 +300,13 @@ int main(int argc, char *argv[])
 				i % n);
 		hwloc_cpuset_to_glibc_sched_affinity(topology,
 				obj->cpuset, &mask, sizeof(mask));
+
+		sched_getaffinity(0, sizeof(old_mask), &old_mask);
+		sched_setaffinity(0, sizeof(mask), &mask);
+
 		new_task_affinity(args, sizeof(mask), &mask);
+
+		sched_setaffinity(0, sizeof(old_mask), &old_mask);
 	}
 
 	if (write(fd[1], &i, 1) != 1) {
@@ -335,9 +350,11 @@ int main(int argc, char *argv[])
 		if (opt_iterations &&
 		    (iterations > (opt_iterations + WARMUP_ITERATIONS))) {
 			printf("average:%llu\n", total / opt_iterations);
-			testcase_cleanup();
-			kill_tasks();
-			exit(0);
+			break;
 		}
 	}
+
+	kill_tasks();
+	testcase_cleanup();
+	exit(0);
 }
