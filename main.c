@@ -15,7 +15,6 @@
 #include <string.h>
 #include <sys/mman.h>
 #include <hwloc.h>
-#include <hwloc/glibc-sched.h>
 #include <sys/types.h>
 #include <signal.h>
 #include <poll.h>
@@ -80,6 +79,8 @@ struct args
 	unsigned long long *arg1;
 	unsigned long arg2;
 	int poll_fd;
+	hwloc_topology_t topology;
+	hwloc_cpuset_t cpuset;
 };
 
 static void *testcase_trampoline(void *p)
@@ -104,16 +105,25 @@ void new_task(void *(func)(void *), void *arg)
 	pthread_create(&threads[nr_threads++], NULL, func, arg);
 }
 
-void new_task_affinity(struct args *args,
-		       size_t cpuset_size, cpu_set_t *mask)
+static void *pre_trampoline(void *p)
+{
+	struct args *args = p;
+
+	if (hwloc_set_thread_cpubind(args->topology, pthread_self(), args->cpuset, 0) < 0) {
+		perror("hwloc_set_thread_cpubind");
+		exit(1);
+	}
+
+	return testcase_trampoline(args);
+}
+
+void new_task_affinity(struct args *args)
 {
 	pthread_attr_t attr;
 
 	pthread_attr_init(&attr);
 
-	pthread_attr_setaffinity_np(&attr, cpuset_size, mask);
-
-	pthread_create(&threads[nr_threads++], &attr, testcase_trampoline, args);
+	pthread_create(&threads[nr_threads++], &attr, pre_trampoline, args);
 
 	pthread_attr_destroy(&attr);
 }
@@ -171,8 +181,7 @@ void new_task(void *(func)(void *), void *arg)
 	pids[nr_pids++] = pid;
 }
 
-void new_task_affinity(struct args *args,
-		       size_t cpuset_size, cpu_set_t *mask)
+void new_task_affinity(struct args *args)
 {
 	int pid;
 
@@ -222,6 +231,7 @@ int main(int argc, char *argv[])
 	unsigned long long total = 0;
 	int fd[2];
 	bool smt_affinity = false;
+	struct args *args;
 
 	while (1) {
 		signed char c = getopt(argc, argv, "mt:s:h");
@@ -280,33 +290,62 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	args = malloc(opt_tasks * sizeof(struct args));
+	if (!args) {
+		perror("malloc");
+		exit(1);
+	}
+
 	for (i = 0; i < opt_tasks; i++) {
 		hwloc_obj_t obj;
-		cpu_set_t mask, old_mask;
-		struct args *args;
+		hwloc_cpuset_t old_cpuset;
+		int flags = 0;
 
-		args = malloc(sizeof(struct args));
-		if (!args) {
-			perror("malloc");
-			exit(1);
-		}
-		args->func = testcase;
-		args->arg1 = results[i];
-		args->arg2 = i;
-		args->poll_fd = fd[0];
+		args[i].func = testcase;
+		args[i].arg1 = results[i];
+		args[i].arg2 = i;
+		args[i].poll_fd = fd[0];
 
 		obj = hwloc_get_obj_by_type(topology,
 				smt_affinity ? HWLOC_OBJ_PU : HWLOC_OBJ_CORE,
 				i % n);
-		hwloc_cpuset_to_glibc_sched_affinity(topology,
-				obj->cpuset, &mask, sizeof(mask));
 
-		sched_getaffinity(0, sizeof(old_mask), &old_mask);
-		sched_setaffinity(0, sizeof(mask), &mask);
+		if (hwloc_topology_dup(&args[i].topology, topology)) {
+			perror("hwloc_topology_dup");
+			exit(1);
+		}
 
-		new_task_affinity(args, sizeof(mask), &mask);
+		if (!(args[i].cpuset = hwloc_bitmap_dup(obj->cpuset))) {
+			perror("hwloc_bitmap_dup");
+			exit(1);
+		}
 
-		sched_setaffinity(0, sizeof(old_mask), &old_mask);
+		old_cpuset = hwloc_bitmap_alloc();
+		if (!old_cpuset) {
+			perror("hwloc_bitmap_alloc");
+			exit(1);
+		}
+#ifdef THREADS
+		flags |= HWLOC_CPUBIND_THREAD;
+#endif
+		if (hwloc_get_cpubind(topology, old_cpuset, flags) < 0) {
+			perror("hwloc_get_cpubind");
+			exit(1);
+		}
+
+		if (hwloc_set_cpubind(topology, obj->cpuset, flags) < 0) {
+			perror("hwloc_set_cpubind");
+			exit(1);
+		}
+
+		new_task_affinity(&args[i]);
+
+		if (hwloc_set_cpubind(topology, old_cpuset, flags) < 0) {
+			perror("hwloc_set_cpubind");
+			exit(1);
+		}
+
+		hwloc_bitmap_free(old_cpuset);
 	}
 
 	if (write(fd[1], &i, 1) != 1) {
@@ -353,6 +392,12 @@ int main(int argc, char *argv[])
 			break;
 		}
 	}
+
+	for (i = 0; i < opt_tasks; i++) {
+		hwloc_bitmap_free(args[i].cpuset);
+		hwloc_topology_destroy(args[i].topology);
+	}
+	free(args);
 
 	kill_tasks();
 	testcase_cleanup();
