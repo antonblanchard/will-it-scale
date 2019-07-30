@@ -16,10 +16,13 @@ void testcase_prepare(unsigned long nr_tasks)
 {
 	struct rlimit rlim;
 	int nr_procs = sysconf(_SC_NPROCESSORS_CONF);
+	rlim_t new_lim = (NR_FILES + 10) * nr_procs;
 
 	getrlimit(RLIMIT_NOFILE, &rlim);
-	rlim.rlim_cur = (NR_FILES + 10) * nr_procs;
-	rlim.rlim_max = (NR_FILES + 10) * nr_procs;
+	if( rlim.rlim_max < new_lim) {
+		rlim.rlim_cur = new_lim;
+		rlim.rlim_max = new_lim;
+	}
 	assert(setrlimit(RLIMIT_NOFILE, &rlim) == 0);
 }
 
