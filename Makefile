@@ -1,5 +1,5 @@
-CFLAGS=-Wall -O2 -g
-LDFLAGS=-lhwloc
+CFLAGS+=-Wall -O2 -g
+LDFLAGS+=-lhwloc
 
 processes := $(patsubst tests/%.c,%_processes,$(wildcard tests/*.c))
 threads := $(patsubst tests/%.c,%_threads,$(wildcard tests/*.c))
@@ -10,7 +10,7 @@ processes: $(processes)
 
 threads: $(threads)
 
-posix_semaphore1_processes_FLAGS=-lpthread
+posix_semaphore1_processes_FLAGS+=-lpthread
 
 $(processes): %_processes: tests/%.o main.c
 	$(CC) $(CFLAGS) main.c $< $($@_FLAGS) $(LDFLAGS) -o $@
