@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 
 import sys
 import os
@@ -44,8 +44,8 @@ def process(base):
     t = string.Template(template)
     html = t.substitute(data=data, title=title)
 
-    file(htmlfile, 'w').write(html)
-    print 'Created %s' % (htmlfile)
+    open(htmlfile, 'w').write(html)
+    print('Created %s' % (htmlfile))
 
 
 def for_each_file(dirname, subdirs, filenames):
