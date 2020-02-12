@@ -1,5 +1,7 @@
+#ifdef __linux__
 #define _GNU_SOURCE
 #include <unistd.h>
+
 #include <sys/syscall.h>
 #include <linux/futex.h>
 
@@ -17,3 +19,9 @@ void testcase(unsigned long long *iterations, unsigned long nr)
 		(*iterations)++;
 	}
 }
+#else
+char *testcase_description = "futex(FUTEX_WAKE_PRIVATE)";
+void testcase(unsigned long long *iterations, unsigned long nr)
+{
+}
+#endif

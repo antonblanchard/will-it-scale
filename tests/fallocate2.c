@@ -1,3 +1,10 @@
+char *testcase_description = "Separate file fallocate";
+
+#if defined(__NetBSD__)
+void testcase(unsigned long long *iterations, unsigned long nr)
+{
+}
+#else
 #define _GNU_SOURCE             /* See feature_test_macros(7) */
 #include <errno.h>
 #include <fcntl.h>
@@ -8,8 +15,6 @@
 
 #define FILESIZE (1 * 1024 * 1024)
 #define BUFLEN (FILESIZE / 128)
-
-char *testcase_description = "Separate file fallocate";
 
 void testcase(unsigned long long *iterations, unsigned long nr)
 {
@@ -32,4 +37,4 @@ void testcase(unsigned long long *iterations, unsigned long nr)
 		(*iterations)++;
 	}
 }
-
+#endif

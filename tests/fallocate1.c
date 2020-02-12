@@ -1,3 +1,4 @@
+#if __linux__
 #define _GNU_SOURCE             /* See feature_test_macros(7) */
 #include <errno.h>
 #include <fcntl.h>
@@ -32,4 +33,9 @@ void testcase(unsigned long long *iterations, unsigned long nr)
 		(*iterations)++;
 	}
 }
-
+#else
+char *testcase_description = "Separate file fallocate ";
+void testcase(unsigned long long *iterations, unsigned long nr)
+{
+}
+#endif
