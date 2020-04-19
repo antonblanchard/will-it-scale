@@ -34,7 +34,6 @@ void testcase(unsigned long long *iterations, unsigned long nr)
 }
 #else
 char *testcase_description = "eventfd read/write of 8 bytes";
-
 void testcase(unsigned long long *iterations, unsigned long nr)
 {
 }
