@@ -1,7 +1,6 @@
 #ifdef __linux__
 #define _GNU_SOURCE
 #include <unistd.h>
-
 #include <sys/syscall.h>
 #include <linux/futex.h>
 

@@ -7,22 +7,14 @@
 #include <string.h>
 #include <assert.h>
 #include <sys/types.h>
-#include <sys/syscall.h>
 #include <stdio.h>
 
-#if defined(__NetBSD__)
-#include <lwp.h>
-#define gettid()  (long int)_lwp_self()
-#else
-#define gettid()  syscall(SYS_gettid)
-#endif
 #define MEMORYSIZE (1 * 1024 * 1024)
 
 char *testcase_description = "TLB flush of anonymous memory private mapping";
 
 void testcase(unsigned long *iteration, unsigned long nr)
 {
-	printf("thread/process number: %lu, pid: %ld\n", nr, gettid());
 	unsigned long pgsize = getpagesize();
 	unsigned long i;
 
