@@ -10,6 +10,7 @@ void testcase(unsigned long long *iterations, unsigned long nr)
 	int fd = mkstemp(tmpfile);
 
 	assert(fd >= 0);
+	unlink(tmpfile);
 
 	while (1) {
 		int fd2 = dup(fd);
@@ -21,5 +22,4 @@ void testcase(unsigned long long *iterations, unsigned long nr)
 	}
 
 	close(fd);
-	unlink(tmpfile);
 }
