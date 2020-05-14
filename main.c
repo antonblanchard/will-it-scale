@@ -18,6 +18,8 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <poll.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #define MAX_TASKS 2048
 #define MAX_CACHELINE_SIZE 256
@@ -144,6 +146,10 @@ static void kill_tasks(void)
 	for (i = 0; i < nr_threads; i++) {
 		pthread_cancel(threads[i]);
 	}
+
+	for (i = 0; i < nr_threads; i++) {
+		pthread_join(threads[i], NULL);
+	}
 }
 
 #else
@@ -223,6 +229,8 @@ static void kill_tasks(void)
 
 	for (i = 0; i < nr_pids; i++)
 		kill(pids[i], SIGTERM);
+	for (i = 0; i < nr_pids; i++)
+		waitpid(pids[i], NULL, 0);
 }
 #endif
 
