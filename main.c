@@ -20,7 +20,7 @@
 #include <poll.h>
 
 #define MAX_TASKS 1024
-#define CACHELINE_SIZE 128
+#define MAX_CACHELINE_SIZE 256
 #define WARMUP_ITERATIONS 5
 
 extern char *testcase_description;
@@ -264,9 +264,9 @@ int main(int argc, char *argv[])
 	if (optind < argc)
 		usage(argv[0]);
 
-	m = initialise_shared_area(opt_tasks * CACHELINE_SIZE);
+	m = initialise_shared_area(opt_tasks * MAX_CACHELINE_SIZE);
 	for (i = 0; i < opt_tasks; i++)
-		results[i] = (unsigned long long *)&m[i * CACHELINE_SIZE];
+		results[i] = (unsigned long long *)&m[i * MAX_CACHELINE_SIZE];
 
 	if (pipe(fd) == -1) {
 		perror("pipe");
