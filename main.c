@@ -232,9 +232,10 @@ int main(int argc, char *argv[])
 	int fd[2];
 	bool smt_affinity = false;
 	struct args *args;
+	bool verbose = false;
 
 	while (1) {
-		signed char c = getopt(argc, argv, "mt:s:h");
+		signed char c = getopt(argc, argv, "mt:s:hv");
 		if (c < 0)
 			break;
 
@@ -254,6 +255,10 @@ int main(int argc, char *argv[])
 
 			case 's':
 				opt_iterations = atoi(optarg);
+				break;
+
+			case 'v':
+				verbose = true;
 				break;
 
 			default:
@@ -367,6 +372,9 @@ int main(int argc, char *argv[])
 		for (i = 0; i < opt_tasks; i++) {
 			unsigned long long val = *(results[i]);
 			unsigned long long diff = val - prev[i];
+
+			if (verbose)
+				printf("%4d -> %llu\n", i, diff);
 
 			if (diff < min)
 				min = diff;
