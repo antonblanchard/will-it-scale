@@ -19,8 +19,8 @@
 #include <signal.h>
 #include <poll.h>
 
-#define MAX_TASKS 1024
-#define CACHELINE_SIZE 128
+#define MAX_TASKS 2048
+#define MAX_CACHELINE_SIZE 256
 #define WARMUP_ITERATIONS 5
 
 extern char *testcase_description;
@@ -97,7 +97,7 @@ static void *testcase_trampoline(void *p)
 
 #include <pthread.h>
 
-static pthread_t threads[MAX_TASKS];
+static pthread_t threads[2*MAX_TASKS];
 static int nr_threads;
 
 void new_task(void *(func)(void *), void *arg)
@@ -141,7 +141,7 @@ static void kill_tasks(void)
 #else
 #include <signal.h>
 
-static int pids[MAX_TASKS];
+static int pids[2*MAX_TASKS];
 static int nr_pids;
 
 /* Watchdog used to make sure all children exit when the parent does */
@@ -264,9 +264,9 @@ int main(int argc, char *argv[])
 	if (optind < argc)
 		usage(argv[0]);
 
-	m = initialise_shared_area(opt_tasks * CACHELINE_SIZE);
+	m = initialise_shared_area(opt_tasks * MAX_CACHELINE_SIZE);
 	for (i = 0; i < opt_tasks; i++)
-		results[i] = (unsigned long long *)&m[i * CACHELINE_SIZE];
+		results[i] = (unsigned long long *)&m[i * MAX_CACHELINE_SIZE];
 
 	if (pipe(fd) == -1) {
 		perror("pipe");
