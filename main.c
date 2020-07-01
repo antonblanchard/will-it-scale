@@ -70,6 +70,7 @@ static void usage(char *command)
 	printf("\t-s iterations\tNumber of iterations to run\n");
 	printf("\t-t tasks\tNumber of threads or processes to run\n");
 	printf("\t-m\t\tAffinitize tasks on SMT threads (default cores)\n");
+	printf("\t-n\t\tNo affinity\n");
 	exit(1);
 }
 
@@ -93,6 +94,8 @@ static void *testcase_trampoline(void *p)
 	return args->func(args->arg1, args->arg2);
 }
 
+static bool use_affinity = true;
+
 #ifdef THREADS
 
 #include <pthread.h>
@@ -109,7 +112,7 @@ static void *pre_trampoline(void *p)
 {
 	struct args *args = p;
 
-	if (hwloc_set_thread_cpubind(args->topology, pthread_self(), args->cpuset, 0) < 0) {
+	if (use_affinity && hwloc_set_thread_cpubind(args->topology, pthread_self(), args->cpuset, 0) < 0) {
 		perror("hwloc_set_thread_cpubind");
 		exit(1);
 	}
@@ -235,7 +238,7 @@ int main(int argc, char *argv[])
 	bool verbose = false;
 
 	while (1) {
-		signed char c = getopt(argc, argv, "mt:s:hv");
+		signed char c = getopt(argc, argv, "mt:s:hvn");
 		if (c < 0)
 			break;
 
@@ -261,12 +264,19 @@ int main(int argc, char *argv[])
 				verbose = true;
 				break;
 
+			case 'n':
+				use_affinity = false;
+				break;
+
 			default:
 				usage(argv[0]);
 		}
 	}
 
 	if (optind < argc)
+		usage(argv[0]);
+
+	if (smt_affinity && (use_affinity == false))
 		usage(argv[0]);
 
 	m = initialise_shared_area(opt_tasks * MAX_CACHELINE_SIZE);
@@ -338,14 +348,14 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 
-		if (hwloc_set_cpubind(topology, obj->cpuset, flags) < 0) {
+		if (use_affinity && hwloc_set_cpubind(topology, obj->cpuset, flags) < 0) {
 			perror("hwloc_set_cpubind");
 			exit(1);
 		}
 
 		new_task_affinity(&args[i]);
 
-		if (hwloc_set_cpubind(topology, old_cpuset, flags) < 0) {
+		if (use_affinity && hwloc_set_cpubind(topology, old_cpuset, flags) < 0) {
 			perror("hwloc_set_cpubind");
 			exit(1);
 		}
