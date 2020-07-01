@@ -87,8 +87,11 @@ static void *testcase_trampoline(void *p)
 {
 	struct args *args = p;
 	struct pollfd pfd = { args->poll_fd, POLLIN, 0 };
+	int ret;
 
-	poll(&pfd, 1, -1);
+	do {
+		ret = poll(&pfd, 1, -1);
+	} while ((ret == -1) && (errno == EINTR));
 
 	return args->func(args->arg1, args->arg2);
 }
