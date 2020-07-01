@@ -414,13 +414,14 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	kill_tasks();
+
 	for (i = 0; i < opt_tasks; i++) {
 		hwloc_bitmap_free(args[i].cpuset);
 		hwloc_topology_destroy(args[i].topology);
 	}
 	free(args);
 
-	kill_tasks();
 	testcase_cleanup();
 	exit(0);
 }
