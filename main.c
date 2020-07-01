@@ -120,6 +120,8 @@ static void *pre_trampoline(void *p)
 		exit(1);
 	}
 
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
 	return testcase_trampoline(args);
 }
 
