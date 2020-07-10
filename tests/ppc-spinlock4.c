@@ -18,9 +18,15 @@ static inline unsigned int spin_trylock(unsigned int *lock)
 
 static void inline spin_lock(unsigned int *lock)
 {
-	while (spin_trylock(lock))
-		;
+	while (1) {
+		if (spin_trylock(lock) == 0)
+			return;
+
+		while (*((volatile unsigned int *)lock) != 0)
+			;
+	}
 }
+
 
 static void inline spin_unlock(unsigned int *lock)
 {
