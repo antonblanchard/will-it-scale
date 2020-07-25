@@ -1,6 +1,6 @@
 #define _GNU_SOURCE
 #include <pthread.h>
-#include <alloca.h>
+#include <stdlib.h>
 
 char *testcase_description = "Contended pthread mutex with local update";
 
