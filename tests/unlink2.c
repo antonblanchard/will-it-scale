@@ -7,7 +7,7 @@
 #include <limits.h>
 #include <assert.h>
 
-char *testcase_description = "Separate file open/close in different directories";
+char *testcase_description = "Separate file open/close/unlink in different directories";
 
 void testcase(unsigned long long *iterations, unsigned long nr)
 {

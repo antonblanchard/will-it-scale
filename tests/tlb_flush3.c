@@ -11,7 +11,7 @@
 
 #define FILESIZE (128 * 1024 * 1024)
 
-char *testcase_description = "TLB flush of separated file shared mapping";
+char *testcase_description = "TLB flush of separate file shared mapping";
 
 void testcase(unsigned long *iteration, unsigned long nr)
 {
