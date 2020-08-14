@@ -19,9 +19,12 @@ void testcase_prepare(unsigned long nr_tasks)
 	rlim_t new_lim = (NR_FILES + 10) * nr_procs;
 
 	getrlimit(RLIMIT_NOFILE, &rlim);
-	if( rlim.rlim_max < new_lim) {
+	if (rlim.rlim_max < new_lim) {
 		rlim.rlim_cur = new_lim;
 		rlim.rlim_max = new_lim;
+	}
+	if (rlim.rlim_cur < new_lim) {
+		rlim.rlim_cur = new_lim;
 	}
 	assert(setrlimit(RLIMIT_NOFILE, &rlim) == 0);
 }
