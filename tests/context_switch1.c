@@ -38,26 +38,28 @@ static void *child(void *arg)
 
 void testcase(unsigned long long *iterations, unsigned long nr)
 {
-	struct args a;
+	struct args *a;
 	char c;
 	int ret;
+	a = malloc(sizeof(struct args));
+	assert(pipe(a->fd1) == 0);
+	assert(pipe(a->fd2) == 0);
 
-	assert(pipe(a.fd1) == 0);
-	assert(pipe(a.fd2) == 0);
-
-	new_task(child, &a);
+	new_task(child, a);
 
 	while (1) {
 		do {
-			ret = write(a.fd1[WRITE], &c, 1);
+			ret = write(a->fd1[WRITE], &c, 1);
 		} while (ret != 1 && errno == EINTR);
 		assert(ret == 1);
 
 		do {
-			ret = read(a.fd2[READ], &c, 1);
+			ret = read(a->fd2[READ], &c, 1);
 		} while (ret != 1 && errno == EINTR);
 		assert(ret == 1);
 			
 		(*iterations) += 2;
 	}
+
+	free(a);
 }
