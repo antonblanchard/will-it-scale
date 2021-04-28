@@ -30,6 +30,29 @@ extern void __attribute__((weak)) testcase_prepare(unsigned long nr_tasks) { }
 extern void __attribute__((weak)) testcase_cleanup(void) { }
 extern void *testcase(unsigned long long *iterations, unsigned long nr);
 
+#ifdef __linux__
+static char *initialise_shared_area(unsigned long size)
+{
+	char *m;
+	int page_size = getpagesize();
+
+	/* Align to page boundary */
+	size = (size + page_size-1) & ~(page_size-1);
+
+	m = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_SHARED, -1, 0);
+	if (m == MAP_FAILED) {
+		perror("initialise_shared_area: mmap");
+		exit(1);
+	}
+
+	if (madvise(m, size, MADV_NOHUGEPAGE) == -1) {
+		perror("initialise_shared_area: madvise");
+		exit(1);
+	}
+
+	return m;
+}
+#else
 static char *initialise_shared_area(unsigned long size)
 {
 	char template[] = "/tmp/shared_area_XXXXXX";
@@ -65,6 +88,7 @@ static char *initialise_shared_area(unsigned long size)
 
 	return m;
 }
+#endif
 
 static void usage(char *command)
 {
