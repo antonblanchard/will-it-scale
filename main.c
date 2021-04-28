@@ -41,7 +41,12 @@ static char *initialise_shared_area(unsigned long size)
 
 	m = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_SHARED, -1, 0);
 	if (m == MAP_FAILED) {
-		perror("mmap");
+		perror("initialise_shared_area: mmap");
+		exit(1);
+	}
+
+	if (madvise(m, size, MADV_NOHUGEPAGE) == -1) {
+		perror("initialise_shared_area: madvise");
 		exit(1);
 	}
 
